@@ -126,10 +126,7 @@ def handle_client_request(method: str, resource: str, client_socket, full_reques
             height = float(area_match.group('height'))
             width = float(area_match.group('width'))
             print(f'Calculate area: height={height}&width={width}')
-            if height < 0 or width < 0:
-                area = 'Invalid Input'.encode()
-            else:
-                area = str(height * width / 2).encode()
+            area = str(height * width / 2).encode()
             http_header = (
                 "HTTP/1.0 200 OK\r\n"
                 f"Content-Type: text/plain\r\n"
