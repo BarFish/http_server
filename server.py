@@ -11,9 +11,9 @@ WEBROOT = 'webroot'  # root directory
 DEFAULT_URL = '/index.html'
 UPLOAD_DIR = WEBROOT + '/uploads/'
 
-FORBIDDEN_FILES = ['secret.txt']
+FORBIDDEN_FILES = [WEBROOT + '/secret.html']
 
-REDIRECTION_DICTIONARY = {'/page1.html': '/page2.html'}
+REDIRECTION_DICTIONARY = {f'{WEBROOT}/page1.html': '/index.html'}
 
 CONTENT_TYPES = {
     'html': 'text/html; charset=utf-8',
@@ -149,19 +149,27 @@ def handle_client_request(method: str, resource: str, client_socket, full_reques
         # 403 Forbidden
         if filename in FORBIDDEN_FILES:
             print(f"{resource} is forbidden.")
-            response = (
-                "HTTP/1.0 403 Forbidden\r\n\r\n"
-            ).encode()
-            client_socket.send(response)
+            response_body = "403 Forbidden - Access denied."
+            response_header = (
+                "HTTP/1.0 403 Forbidden\r\n"
+                "Content-Type: text/plain\r\n"
+                f"Content-Length: {len(response_body)}\r\n"
+                "\r\n"
+            )
+            client_socket.send((response_header + response_body).encode())
             return
 
         # 404 Not Found
         if not os.path.isfile(filename):
             print(f"{filename} file not found")
-            response = (
-                "HTTP/1.0 404 Not Found\r\n\r\n"
-            ).encode()
-            client_socket.send(response)
+            response_body = "404 Not Found - The file does not exist."
+            response_header = (
+                "HTTP/1.0 404 Not Found\r\n"
+                "Content-Type: text/plain\r\n"
+                f"Content-Length: {len(response_body)}\r\n"
+                "\r\n"
+            )
+            client_socket.send((response_header + response_body).encode())
             return
 
         # 200 OK
@@ -183,10 +191,14 @@ def handle_client_request(method: str, resource: str, client_socket, full_reques
     except Exception as e:
         # 500 Internal Server Error
         print(f"Internal server error: {e}")
-        response = (
-            "HTTP/1.0 500 Internal Server Error\r\n\r\n"
-        ).encode()
-        client_socket.send(response)
+        response_body = "500 Internal Server Error - Something went wrong on the server."
+        response_header = (
+            "HTTP/1.0 500 Internal Server Error\r\n"
+            "Content-Type: text/plain\r\n"
+            f"Content-Length: {len(response_body)}\r\n"
+            "\r\n"
+        )
+        client_socket.send((response_header + response_body).encode())
 
 
 def handle_client(client_socket):
